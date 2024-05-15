@@ -120,7 +120,7 @@ class WholeBodyController:
 
         # Create plugable vector signals to control the impedance controller.
         for i, endeff_name in enumerate(self.endeff_names):
-            imp = mim_control_dg.ImpedanceController(
+            imp = mim_control_dg.RWImpedanceController(
                 prefix + "_imp_" + endeff_name
             )
             imp.initialize(pin_robot.model, "universe", endeff_name)
@@ -153,8 +153,9 @@ class WholeBodyController:
             self.joint_torques_sout = add_vec_vec(
                 self.joint_torques_sout, self.imps[i].joint_torque_sout
             )
+        
         # Adding in RW torque
-        rw_torque = np.array([1])
+        rw_torque = np.array([0.01])
         rw_torque_signal = constVector(rw_torque, "")
         self.joint_torques_sout = stack_two_vectors(self.joint_torques_sout, rw_torque_signal, 6, 1)
 

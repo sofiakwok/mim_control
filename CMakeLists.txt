@@ -46,6 +46,7 @@ endif()
 add_library(
   ${PROJECT_NAME} SHARED
   src/impedance_controller.cpp
+  src/rw_impedance_controller.cpp
   src/centroidal_pd_controller.cpp
   src/centroidal_force_qp_controller.cpp
   src/centroidal_impedance_controller.cpp)
@@ -71,6 +72,7 @@ if(${build_dynamic_graph_plugins})
     ${plugin_name} SHARED
     src/dynamic_graph/signal_utils.cpp
     src/dynamic_graph/impedance_controller.cpp
+    src/dynamic_graph/rw_impedance_controller.cpp
     src/dynamic_graph/centroidal_pd_controller.cpp
     src/dynamic_graph/centroidal_force_qp_controller.cpp)
   # Add the include dependencies.
@@ -122,6 +124,7 @@ install(DIRECTORY include/ DESTINATION include)
 pybind11_add_module(${PROJECT_NAME}_cpp MODULE
   srcpy/${PROJECT_NAME}.cpp
   srcpy/impedance_controller.cpp
+  srcpy/rw_impedance_controller.cpp
   srcpy/centroidal_pd_controller.cpp
   srcpy/centroidal_force_qp_controller.cpp
   srcpy/centroidal_impedance_controller.cpp)

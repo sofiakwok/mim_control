@@ -12,6 +12,7 @@
 #include "mim_control/dynamic_graph/centroidal_force_qp_controller.hpp"
 #include "mim_control/dynamic_graph/centroidal_pd_controller.hpp"
 #include "mim_control/dynamic_graph/impedance_controller.hpp"
+#include "mim_control/dynamic_graph/rw_impedance_controller.hpp"
 
 namespace dg = dynamicgraph;
 
@@ -37,6 +38,22 @@ BOOST_PYTHON_MODULE(wbc)
             return;
         },
         "Initialize the ImpedanceController.");
+
+    using mim_control::dynamic_graph::RWImpedanceController;
+    dynamicgraph::python::exposeEntity<RWImpedanceController>().def(
+        "initialize",
+        +[](RWImpedanceController& RWImpedanceController,
+            const boost::python::object& pinocchio_model,
+            const std::string& root_frame_name,
+            const std::string& end_frame_name) {
+            const pinocchio::Model& pinocchio_model_ref =
+                boost::python::extract<const pinocchio::Model&>(
+                    pinocchio_model);
+            RWImpedanceController.initialize(
+                pinocchio_model_ref, root_frame_name, end_frame_name);
+            return;
+        },
+        "Initialize the RWImpedanceController.");
 
     using mim_control::dynamic_graph::CentroidalPDController;
     dynamicgraph::python::exposeEntity<CentroidalPDController>();
