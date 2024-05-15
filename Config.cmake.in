@@ -1,0 +1,14 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/mim_controlTargets.cmake")
+
+include(CMakeFindDependencyMacro)
+
+# we do not add the other dependencies because these are header files lib
+find_dependency(pybind11 CONFIG REQUIRED)
+find_dependency(Eigen3 REQUIRED)
+find_dependency(pinocchio REQUIRED)
+find_dependency(eiquadprog REQUIRED)
+find_dependency(yaml_utils REQUIRED)
+
+check_required_components(mim_control)
