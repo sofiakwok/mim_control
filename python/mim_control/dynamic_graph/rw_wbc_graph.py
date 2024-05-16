@@ -155,9 +155,9 @@ class WholeBodyController:
             )
         
         # Adding in RW torque
-        rw_torque = np.array([0.01])
-        rw_torque_signal = constVector(rw_torque, "")
-        self.joint_torques_sout = stack_two_vectors(self.joint_torques_sout, rw_torque_signal, 6, 1)
+        # rw_torque = np.array([0.01])
+        # rw_torque_signal = constVector(rw_torque, "")
+        # self.joint_torques_sout = stack_two_vectors(self.joint_torques_sout, rw_torque_signal, 6, 1)
 
         ###
         # Export all the signals for the user of the PyEntity.

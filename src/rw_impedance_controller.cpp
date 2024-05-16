@@ -48,9 +48,10 @@ void RWImpedanceController::initialize(const pinocchio::Model& pinocchio_model,
     // output
     torques_.resize(pinocchio_model_.nv, 1);
     torques_.fill(0.);
-    if (pinocchio_model_has_free_flyer_)
+    if (pinocchio_model_has_free_flyer_){
         joint_torques_.resize(pinocchio_model_.nv, 1);
-    else
+        std::cout << "free flyer joint in pinocchio model" << std::endl;
+    } else
     {
         joint_torques_.resize(pinocchio_model_.nv - 6, 1);
     }
@@ -143,6 +144,7 @@ void RWImpedanceController::run_precomputed_data(
     impedance_force_ -=
         (gain_feed_forward_force * feed_forward_force.toVector().array())
             .matrix();
+    // std::cout << "impedance force: " << impedance_force_ << std::endl;
 
     // Get the jacobian.
     pinocchio::getFrameJacobian(pinocchio_model_,
@@ -152,17 +154,22 @@ void RWImpedanceController::run_precomputed_data(
                                 end_jacobian_);
 
     impedance_jacobian_ = end_jacobian_;
+    // adding non-zero jacobian term for reaction wheel
+    // change to z row for hardware? 
+    impedance_jacobian_(1, 12) = 1;
+
+    //std::cout << "impedance jacobian: " << impedance_jacobian_ << std::endl;
 
     // compute the output torques
     torques_ = (impedance_jacobian_.transpose() * impedance_force_);
-    std::cout << "torques: " << torques_ << std::endl;
-
+    //
     if (pinocchio_model_has_free_flyer_)
         joint_torques_ = torques_.tail(pinocchio_model_.nv - 6);
     else
     {
         joint_torques_ = torques_;
     }
+    // std::cout << "joint torques: " << joint_torques_ << std::endl;
     return;
 }
 
