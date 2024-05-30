@@ -155,7 +155,8 @@ void RWImpedanceController::run_precomputed_data(
 
     impedance_jacobian_ = end_jacobian_;
     // adding non-zero jacobian term for reaction wheel
-    // change to z row for hardware? 
+    // rw pitch control = second row of jacobian
+    // TODO: update the values based on how the robot is rotated?
     impedance_jacobian_(1, 12) = 1;
 
     //std::cout << "impedance jacobian: " << impedance_jacobian_ << std::endl;

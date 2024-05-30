@@ -148,12 +148,12 @@ class WholeBodyController:
 
         # The final computed control.
         self.joint_torques_sout = self.imps[0].joint_torque_sout
-        print("joint_torques_sout: " + str(self.joint_torques_sout))
+        #print("joint_torques_sout: " + str(self.joint_torques_sout))
         for i in range(1, self.ne):
             self.joint_torques_sout = add_vec_vec(
                 self.joint_torques_sout, self.imps[i].joint_torque_sout
             )
-        print("joint torques sout: " + str(self.joint_torques_sout))
+        #print("joint torques sout: " + str(self.joint_torques_sout))
 
         ###
         # Export all the signals for the user of the PyEntity.
@@ -172,7 +172,7 @@ class WholeBodyController:
         self.cnt_array_sin = self.f_ctrl.cnt_array_sin
 
     def trace(self, robot=None):
-        print("robot: " + str(robot))
+        print("wbc trace robot: " + str(robot))
         if robot is None:
             try:
                 robot = self.robot

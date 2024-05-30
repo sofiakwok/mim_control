@@ -10,6 +10,7 @@
 
 #include "mim_control/centroidal_pd_controller.hpp"
 #include "pinocchio/spatial/explog.hpp"
+#include <iostream>
 
 namespace mim_control
 {
@@ -79,6 +80,8 @@ void CentroidalPDController::run(Eigen::Ref<const Eigen::Vector3d> kc,
             des_angvel_world_error_.array() - angvel_world_error_.array()
         ) +
         kb.array() * ori_error_.array();
+
+    //std::cout << "wrench: " << wrench_ << std::endl;
 }
 
 Vector6d& CentroidalPDController::get_wrench()

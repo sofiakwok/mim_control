@@ -89,6 +89,7 @@ void CentroidalForceQPController::run(
     Eigen::Ref<const Eigen::VectorXd> relative_position_endeff,
     Eigen::Ref<const Eigen::VectorXd> cnt_array)
 {
+    std::cout << "contact array: " << cnt_array << std::endl; 
     // Copy the linear part for the centroidal wrench equality.
     ce_new_ = ce_;
 
@@ -118,6 +119,7 @@ void CentroidalForceQPController::run(
     qp_.solve_quadprog(hess_, g0_, ce_new_, w_com, ci_, ci0_, sol_);
     // std::cout << status << std::endl;
     forces_ = sol_.head(3 * nb_eff_);
+    std::cout << "forces: " << forces_ << std::endl;
 }
 
 Eigen::VectorXd& CentroidalForceQPController::get_forces()
