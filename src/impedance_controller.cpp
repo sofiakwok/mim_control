@@ -144,9 +144,9 @@ void ImpedanceController::run_precomputed_data(
         (gain_feed_forward_force * feed_forward_force.toVector().array())
             .matrix();
 
-    std::cout << "err_s3_ " << impedance_force_ << std::endl;
-    std::cout << "err_vel_ " << impedance_force_ << std::endl;
-    std::cout << "feed_forward_force: " << impedance_force_ << std::endl;
+    // std::cout << "err_s3_ " << impedance_force_ << std::endl;
+    // std::cout << "err_vel_ " << impedance_force_ << std::endl;
+    // std::cout << "feed_forward_force: " << impedance_force_ << std::endl;
 
     // Get the jacobian.
     pinocchio::getFrameJacobian(pinocchio_model_,
@@ -158,7 +158,7 @@ void ImpedanceController::run_precomputed_data(
     impedance_jacobian_ = end_jacobian_;
 
     // compute the output torques
-    std::cout << "impedance force: " << impedance_force_ << std::endl;
+    // std::cout << "impedance force: " << impedance_force_ << std::endl;
     // std::cout << "impedance jacobian: " << impedance_jacobian_ << std::endl;
     torques_ = (impedance_jacobian_.transpose() * impedance_force_);
 
@@ -168,7 +168,7 @@ void ImpedanceController::run_precomputed_data(
     {
         joint_torques_ = torques_;
     }
-    std::cout << "joint torques: " << joint_torques_ << std::endl;
+    // std::cout << "joint torques: " << joint_torques_ << std::endl;
     return;
 }
 
