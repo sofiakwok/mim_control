@@ -26,7 +26,7 @@ void LQRController::initialize(const pinocchio::Model& pinocchio_model)
     pinocchio_data_ = pinocchio::Data(pinocchio_model_);
 
     // load in A and B matrices
-    /*Eigen::MatrixXd A = Eigen::MatrixXd::Zero(25, 25);
+    Eigen::MatrixXd A = Eigen::MatrixXd::Zero(25, 25);
     std::ifstream fin("A.txt");
     for (int i = 0; i < 25; ++i) {
         for (int j = 0; j < 25; ++j) {
@@ -49,9 +49,7 @@ void LQRController::initialize(const pinocchio::Model& pinocchio_model)
 
     Eigen::MatrixXd A_T = A.transpose();
     Eigen::MatrixXd b_T = b.transpose();
-    */
-
-    /*
+    
     // TODO: calculate Kinf
     int ricatti_iter = 1000;
     int n = 2;
@@ -86,12 +84,12 @@ void LQRController::initialize(const pinocchio::Model& pinocchio_model)
         if ((P_.block<25,25>(0, 25) - P_.block<25,25>(0, 0)).norm() <= 1e-5){
             break;
         }
-        std::cout << "checked norm" << std::endl;
         n += 1;
     }
+    std::cout << "done with loop" << std::endl;
     Kinf_ = K_.block<25,25>(0, 0);
     std::cout << "Kinf calculated" << std::endl;
-    */
+    
     // Eigen::MatrixXd Kinf_;
     // Kinf_.resize(6, 1);
     // Kinf_.fill(0);
@@ -139,7 +137,7 @@ void LQRController::run_controller(
     // Eigen::MatrixXd X = (robot_configuration, robot_velocity);
     // Eigen::MatrixXd X_des = (des_robot_configuration, des_robot_velocity);
     // torques_ = -Kinf_ * (X - X_des);
-    torques_.fill(0);
+    torques_.fill(1);
     if (pinocchio_model_has_free_flyer_)
         joint_torques_ = torques_.tail(pinocchio_model_.nv - 6);
     else

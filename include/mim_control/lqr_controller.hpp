@@ -122,9 +122,10 @@ private:  // attributes
      * torques to be applied to the joints only. */
     bool pinocchio_model_has_free_flyer_;
 
-    // Eigen::MatrixXd Q_;
-    // Eigen::MatrixXd Qf_;
-    // Eigen::MatrixXd R_;
+    Eigen::MatrixXd Q_;
+    Eigen::MatrixXd Qf_;
+    Eigen::MatrixXd R_;
+    Eigen::MatrixXd Kinf_;
 
 };
 
