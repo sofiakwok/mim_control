@@ -153,7 +153,7 @@ class WholeBodyController:
             self.joint_torques_sout = add_vec_vec(
                 self.joint_torques_sout, self.imps[i].joint_torque_sout
             )
-        #print("joint torques sout: " + str(self.joint_torques_sout))
+        print("joint torques sout: " + str(self.joint_torques_sout.value))
 
         ###
         # Export all the signals for the user of the PyEntity.

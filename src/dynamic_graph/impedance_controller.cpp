@@ -87,6 +87,7 @@ dynamicgraph::Vector& ImpedanceController::joint_torque_callback(
 {
     one_iteration_sout_.access(time);
     signal_data = impedance_controller_.get_joint_torques();
+    //std::cout << "accessed signal data: " << signal_data << std::endl;
     return signal_data;
 }
 
