@@ -125,6 +125,8 @@ private:  // attributes
     Eigen::MatrixXd Q_;
     Eigen::MatrixXd Qf_;
     Eigen::MatrixXd R_;
+    Eigen::MatrixXd P_;
+    Eigen::MatrixXd K_;
     Eigen::MatrixXd Kinf_;
 
 };

@@ -25,74 +25,29 @@ void LQRController::initialize(const pinocchio::Model& pinocchio_model)
     // Create the cache of the rigid body dynamics algorithms
     pinocchio_data_ = pinocchio::Data(pinocchio_model_);
 
-    // load in A and B matrices
-    Eigen::MatrixXd A = Eigen::MatrixXd::Zero(25, 25);
-    std::ifstream fin("A.txt");
-    for (int i = 0; i < 25; ++i) {
-        for (int j = 0; j < 25; ++j) {
-            double item = 0.0;
-            fin >> item;
-            A(i, j) = item;
-        }
-    }
-    fin.close();
-    Eigen::MatrixXd b = Eigen::MatrixXd::Zero(25, 6);
-    std::ifstream finb("b.txt");
-    for (int i = 0; i < 25; ++i) {
-        for (int j = 0; j < 6; ++j) {
-            double item = 0.0;
-            finb >> item;
-            b(i, j) = item;
-        }
-    }
-    finb.close();
+    int nu = 6;
+    int nx = 25;
 
-    Eigen::MatrixXd A_T = A.transpose();
-    Eigen::MatrixXd b_T = b.transpose();
-    
-    // TODO: calculate Kinf
-    int ricatti_iter = 1000;
-    int n = 2;
-    Q_.resize(25, 25);
-    Q_.setIdentity();
-    Qf_.resize(25, 25);
-    Qf_.setIdentity();
-    R_.resize(6, 6);
-    R_.setIdentity();
-    //R_ *= 0.1;
-    Kinf_.resize(6, 1);
+    Kinf_.resize(nx, nu);
     Kinf_.fill(0);
 
-    Eigen::MatrixXd P_ = Eigen::MatrixXd::Zero(25, 25*n);
-    Eigen::MatrixXd K_ = Eigen::MatrixXd::Zero(25, 25*(n-1));
-
-    std::cout << "initialized matrices" << std::endl;
-
-    for (int i = 0; i < ricatti_iter; i++){
-        P_.resize(25, 25*n);
-        P_.fill(0);
-        K_.resize(25, 25*n-1);
-        K_.fill(0);
-        std::cout << "resized p and k: " << n << std::endl;
-        P_.block<25,25>(0, 25*(n-1)) = Qf_;
-        std::cout << "set last block to qf" << std::endl;
-        for (int k = n-1; k > 1; k--){
-            K_.block<25,25>(0, k*25) = (R_ + b_T*P_.block<25,25>(0, (k+1)*25)*b_T)*(b_T*P_.block<25,25>(0, (k+1)*25)*A).inverse();
-            P_.block<25,25>(0, k*25) = Q_ + A_T*P_.block<25,25>(0, (k+1)*25)*(A - b*K_.block<25,25>(0, k*25));
-            std::cout << "blocking K and P" << std::endl;
-        }
-        if ((P_.block<25,25>(0, 25) - P_.block<25,25>(0, 0)).norm() <= 1e-5){
-            break;
-        }
-        n += 1;
+    std::ifstream fin ("/home/sofia/bolt_hardware/workspace/src/mim_control/src/Kinf.txt");
+    if (fin.is_open())
+    {
+        for (int row = 0; row < nx; row++)
+            for (int col = 0; col < nu; col++)
+            {
+                double item = 20.0;
+                fin >> item;
+                std::cout << "item: " << item << std::endl;
+                Kinf_(row, col) = item;
+            }
+        fin.close();
+    } else {
+        std::cout << "error opening file" << std::endl;
     }
-    std::cout << "done with loop" << std::endl;
-    Kinf_ = K_.block<25,25>(0, 0);
-    std::cout << "Kinf calculated" << std::endl;
-    
-    // Eigen::MatrixXd Kinf_;
-    // Kinf_.resize(6, 1);
-    // Kinf_.fill(0);
+
+    //std::cout << "Kinf calculated: " << Kinf_ << std::endl;
 
     // Defines if the model has a freeflyer.
     pinocchio_model_has_free_flyer_ =
@@ -107,8 +62,6 @@ void LQRController::initialize(const pinocchio::Model& pinocchio_model)
     {
         joint_torques_.resize(pinocchio_model_.nv - 6, 1);
     }
-    std::cout << "pinocchio model nv: " << pinocchio_model_.nv << std::endl;
-
 }
 
 void LQRController::run(
@@ -134,17 +87,16 @@ void LQRController::run_controller(
     Eigen::Ref<const Eigen::VectorXd> des_robot_configuration,
     Eigen::Ref<const Eigen::VectorXd> des_robot_velocity)
 {
-    // Eigen::MatrixXd X = (robot_configuration, robot_velocity);
-    // Eigen::MatrixXd X_des = (des_robot_configuration, des_robot_velocity);
-    // torques_ = -Kinf_ * (X - X_des);
-    torques_.fill(1);
+    Eigen::MatrixXd X = (robot_configuration, robot_velocity);
+    Eigen::MatrixXd X_des = (des_robot_configuration, des_robot_velocity);
+    torques_ = -Kinf_ * (X - X_des);
     if (pinocchio_model_has_free_flyer_)
         joint_torques_ = torques_.tail(pinocchio_model_.nv - 6);
     else
     {
         joint_torques_ = torques_;
     }
-    //std::cout << "joint torques: " << joint_torques_ << std::endl;
+    std::cout << "joint torques: " << joint_torques_ << std::endl;
     return;
 }
 
