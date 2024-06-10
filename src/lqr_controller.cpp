@@ -34,8 +34,8 @@ void LQRController::initialize(const pinocchio::Model& pinocchio_model)
     std::ifstream fin ("/home/sofia/bolt_hardware/workspace/src/mim_control/src/Kinf.txt");
     if (fin.is_open())
     {
-        for (int row = 0; row < nx; row++)
-            for (int col = 0; col < nu; col++)
+        for (int row = 0; row < nu; row++)
+            for (int col = 0; col < nx; col++)
             {
                 double item = 0.0;
                 fin >> item;
@@ -46,7 +46,7 @@ void LQRController::initialize(const pinocchio::Model& pinocchio_model)
         std::cout << "error opening file" << std::endl;
     }
 
-    //std::cout << "Kinf calculated: " << Kinf_ << std::endl;
+    std::cout << "Kinf calculated: " << Kinf_ << std::endl;
 
     // Defines if the model has a freeflyer.
     pinocchio_model_has_free_flyer_ =
@@ -86,8 +86,8 @@ void LQRController::run_controller(
     Eigen::Ref<const Eigen::VectorXd> des_robot_configuration,
     Eigen::Ref<const Eigen::VectorXd> des_robot_velocity)
 {
-    Eigen::MatrixXd X = (robot_configuration, robot_velocity);
-    Eigen::MatrixXd X_des = (des_robot_configuration, des_robot_velocity);
+    Eigen::MatrixXd X(25, 1) = (robot_configuration, robot_velocity);
+    Eigen::MatrixXd X_des(25, 1) = (des_robot_configuration, des_robot_velocity);
     torques_ = -Kinf_ * (X - X_des);
     if (pinocchio_model_has_free_flyer_)
         joint_torques_ = torques_.tail(pinocchio_model_.nv - 6);
