@@ -142,7 +142,7 @@ class LQRController:
         dg.plug(velocity, self.lqr_ctrl.robot_velocity_sin)
 
         # Finally, plug the computed torques to the output.
-        print("graph joint torques: " + str(self.joint_torques_sout.value))
+        # print("graph joint torques: " + str(self.joint_torques_sout.value))
         dg.plug(self.joint_torques_sout, ctrl_joint_torque_sin)
 
     def plug_base_as_com(self, base_position, base_velocity_world):

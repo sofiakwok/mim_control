@@ -28,7 +28,7 @@ void LQRController::initialize(const pinocchio::Model& pinocchio_model)
     int nu = 6;
     int nx = 25;
 
-    Kinf_.resize(nx, nu);
+    Kinf_.resize(nu, nx);
     Kinf_.fill(0);
 
     std::ifstream fin ("/home/sofia/bolt_hardware/workspace/src/mim_control/src/Kinf.txt");
@@ -37,9 +37,8 @@ void LQRController::initialize(const pinocchio::Model& pinocchio_model)
         for (int row = 0; row < nx; row++)
             for (int col = 0; col < nu; col++)
             {
-                double item = 20.0;
+                double item = 0.0;
                 fin >> item;
-                std::cout << "item: " << item << std::endl;
                 Kinf_(row, col) = item;
             }
         fin.close();
@@ -96,7 +95,7 @@ void LQRController::run_controller(
     {
         joint_torques_ = torques_;
     }
-    std::cout << "joint torques: " << joint_torques_ << std::endl;
+    // std::cout << "joint torques: " << joint_torques_ << std::endl;
     return;
 }
 
