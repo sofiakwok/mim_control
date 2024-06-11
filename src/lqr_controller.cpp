@@ -86,8 +86,13 @@ void LQRController::run_controller(
     Eigen::Ref<const Eigen::VectorXd> des_robot_configuration,
     Eigen::Ref<const Eigen::VectorXd> des_robot_velocity)
 {
-    Eigen::MatrixXd X(25, 1) = (robot_configuration, robot_velocity);
-    Eigen::MatrixXd X_des(25, 1) = (des_robot_configuration, des_robot_velocity);
+    Eigen::MatrixXd X(25, 1);
+    X.block<13, 1>(0, 0) = robot_configuration;
+    X.block<12, 1>(13, 0) = robot_velocity;
+    Eigen::MatrixXd X_des(25, 1); 
+    X_des.block<13, 1>(0, 0) = des_robot_configuration;
+    X_des.block<12, 1>(13, 0) = des_robot_velocity;
+    //std::cout << "x diff: " << X - X_des << std::endl;
     torques_ = -Kinf_ * (X - X_des);
     if (pinocchio_model_has_free_flyer_)
         joint_torques_ = torques_.tail(pinocchio_model_.nv - 6);
