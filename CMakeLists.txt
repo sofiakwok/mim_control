@@ -50,7 +50,8 @@ add_library(
   src/centroidal_pd_controller.cpp
   src/centroidal_force_qp_controller.cpp
   src/centroidal_impedance_controller.cpp
-  src/lqr_controller.cpp)
+  src/lqr_controller.cpp
+  src/rw_lqr_controller.cpp)
 # cmake-format: on
 target_link_libraries(${PROJECT_NAME} pinocchio::pinocchio)
 target_link_libraries(${PROJECT_NAME} Eigen3::Eigen)
@@ -76,7 +77,8 @@ if(${build_dynamic_graph_plugins})
     src/dynamic_graph/rw_impedance_controller.cpp
     src/dynamic_graph/centroidal_pd_controller.cpp
     src/dynamic_graph/centroidal_force_qp_controller.cpp
-    src/dynamic_graph/lqr_controller.cpp)
+    src/dynamic_graph/lqr_controller.cpp
+    src/dynamic_graph/rw_lqr_controller.cpp)
   # Add the include dependencies.
   target_include_directories(
     ${plugin_name} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -130,7 +132,8 @@ pybind11_add_module(${PROJECT_NAME}_cpp MODULE
   srcpy/centroidal_pd_controller.cpp
   srcpy/centroidal_force_qp_controller.cpp
   srcpy/centroidal_impedance_controller.cpp
-  srcpy/lqr_controller.cpp)
+  srcpy/lqr_controller.cpp
+  srcpy/rw_lqr_controller.cpp)
 # cmake-format: on
 target_link_libraries(${PROJECT_NAME}_cpp PRIVATE pybind11::module)
 target_link_libraries(${PROJECT_NAME}_cpp PRIVATE ${PROJECT_NAME})

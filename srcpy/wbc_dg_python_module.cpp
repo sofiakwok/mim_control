@@ -74,7 +74,7 @@ BOOST_PYTHON_MODULE(wbc)
     using mim_control::dynamic_graph::RWLQRController;
     dynamicgraph::python::exposeEntity<RWLQRController>().def(
         "initialize",
-        +[](LQRController& RWLQRController,
+        +[](RWLQRController& RWLQRController,
             const boost::python::object& pinocchio_model) {
             const pinocchio::Model& pinocchio_model_ref =
                 boost::python::extract<const pinocchio::Model&>(
@@ -83,7 +83,7 @@ BOOST_PYTHON_MODULE(wbc)
                 pinocchio_model_ref);
             return;
         },
-        "Initialize the LQRController.");
+        "Initialize the RWLQRController.");
 
     using mim_control::dynamic_graph::CentroidalPDController;
     dynamicgraph::python::exposeEntity<CentroidalPDController>();
