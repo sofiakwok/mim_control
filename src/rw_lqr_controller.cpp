@@ -4,20 +4,20 @@
  * @copyright Copyright (c) 2020, New York University and Max Planck
  * Gesellschaft
  *
- * @brief Implementation of the LQRController class.
+ * @brief Implementation of the RWLQRController class.
  */
 
-#include "mim_control/lqr_controller.hpp"
+#include "mim_control/rw_lqr_controller.hpp"
 #include "pinocchio/algorithm/frames.hpp"
 
 
 namespace mim_control
 {
-LQRController::LQRController()
+RWLQRController::RWLQRController()
 {
 }
 
-void LQRController::initialize(const pinocchio::Model& pinocchio_model)
+void RWLQRController::initialize(const pinocchio::Model& pinocchio_model)
 {
     // Copy the arguments internally.
     pinocchio_model_ = pinocchio_model;
@@ -25,8 +25,8 @@ void LQRController::initialize(const pinocchio::Model& pinocchio_model)
     // Create the cache of the rigid body dynamics algorithms
     pinocchio_data_ = pinocchio::Data(pinocchio_model_);
 
-    int nu = 6;
-    int nx = 25;
+    int nu = 7;
+    int nx = 27;
 
     Kinf_.resize(nu, nx);
     Kinf_.fill(0);
@@ -63,7 +63,7 @@ void LQRController::initialize(const pinocchio::Model& pinocchio_model)
     }
 }
 
-void LQRController::run(
+void RWLQRController::run(
     Eigen::Ref<const Eigen::VectorXd> robot_configuration,
     Eigen::Ref<const Eigen::VectorXd> robot_velocity,
     Eigen::Ref<const Eigen::VectorXd> des_robot_configuration,
@@ -80,18 +80,19 @@ void LQRController::run(
     des_robot_velocity);
 }
 
-void LQRController::run_controller(
+void RWLQRController::run_controller(
     Eigen::Ref<const Eigen::VectorXd> robot_configuration,
     Eigen::Ref<const Eigen::VectorXd> robot_velocity,
     Eigen::Ref<const Eigen::VectorXd> des_robot_configuration,
     Eigen::Ref<const Eigen::VectorXd> des_robot_velocity)
 {
-    Eigen::MatrixXd X(25, 1);
-    X.block<13, 1>(0, 0) = robot_configuration;
-    X.block<12, 1>(13, 0) = robot_velocity;
-    Eigen::MatrixXd X_des(25, 1); 
-    X_des.block<13, 1>(0, 0) = des_robot_configuration;
-    X_des.block<12, 1>(13, 0) = des_robot_velocity;
+    int nx = 27;
+    Eigen::MatrixXd X(nx, 1);
+    X.block<14, 1>(0, 0) = robot_configuration;
+    X.block<13, 1>(14, 0) = robot_velocity;
+    Eigen::MatrixXd X_des(nx, 1); 
+    X_des.block<14, 1>(0, 0) = des_robot_configuration;
+    X_des.block<13, 1>(14, 0) = des_robot_velocity;
     std::cout << "X: " << X << std::endl;
     std::cout << "x diff: " << X - X_des << std::endl;
     torques_ = -Kinf_ * (X - X_des);
@@ -105,12 +106,12 @@ void LQRController::run_controller(
     return;
 }
 
-const Eigen::VectorXd& LQRController::get_torques()
+const Eigen::VectorXd& RWLQRController::get_torques()
 {
     return torques_;
 }
 
-const Eigen::VectorXd& LQRController::get_joint_torques()
+const Eigen::VectorXd& RWLQRController::get_joint_torques()
 {
     return joint_torques_;
 }

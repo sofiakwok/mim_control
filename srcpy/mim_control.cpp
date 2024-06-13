@@ -17,6 +17,8 @@ void bind_centroidal_pd_controller(pybind11::module &module);
 void bind_centroidal_force_qp_controller(pybind11::module &module);
 void bind_centroidal_impedance_controller(pybind11::module &module);
 void bind_lqr_controller(pybind11::module &module);
+void bind_rw_lqr_controller(pybind11::module &module);
+
 
 PYBIND11_MODULE(mim_control_cpp, m)
 {
@@ -36,6 +38,7 @@ PYBIND11_MODULE(mim_control_cpp, m)
     bind_centroidal_force_qp_controller(m);
     bind_centroidal_impedance_controller(m);
     bind_lqr_controller(m);
+    bind_rw_lqr_controller(m);
 }
 
 }  // namespace mim_control
