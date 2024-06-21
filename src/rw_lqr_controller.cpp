@@ -86,7 +86,7 @@ void RWLQRController::run_controller(
     Eigen::Ref<const Eigen::VectorXd> des_robot_configuration,
     Eigen::Ref<const Eigen::VectorXd> des_robot_velocity)
 {
-    int nx = 27;
+    /*int nx = 27;
     Eigen::MatrixXd X(nx, 1);
     X.block<14, 1>(0, 0) = robot_configuration;
     X.block<13, 1>(14, 0) = robot_velocity;
@@ -102,7 +102,53 @@ void RWLQRController::run_controller(
     {
         joint_torques_ = torques_;
     }
-    std::cout << "joint torques: " << joint_torques_ << std::endl;
+    std::cout << "joint torques: " << joint_torques_ << std::endl;*/
+
+    // controlling only reaction wheel based on pitch angle
+    // keeping all other joints locked at desired configuration
+    des_ori_quat_.w() = des_robot_configuration[3];
+    des_ori_quat_.vec()[0] = des_robot_configuration[0];
+    des_ori_quat_.vec()[1] = des_robot_configuration[1];
+    des_ori_quat_.vec()[2] = des_robot_configuration[2];
+
+    ori_quat_.w() = robot_configuration[3];
+    ori_quat_.vec()[0] = robot_configuration[0];
+    ori_quat_.vec()[1] = robot_configuration[1];
+    ori_quat_.vec()[2] = robot_configuration[2];
+
+    des_ori_se3_ = des_ori_quat_.toRotationMatrix();
+    ori_se3_ = ori_quat_.toRotationMatrix();
+
+    // Compute the pitch error
+    ori_error_se3_ = des_ori_se3_.transpose() * ori_se3_;
+    ori_error_quat_ = ori_error_se3_;
+    ori_error_ = pinocchio::quaternion::log3(des_ori_quat_ * ori_quat_.conjugate());
+    double pitch_err = ori_error_[2];
+    double rw_vel = robot_velocity[12];
+
+    const int nj = 7; // number of joints to control
+    const int nv = 7; // number of velocities to control
+    Eigen::MatrixXd X(nj, 1);
+    X = robot_configuration.block<nj, 1>(7, 0);
+    Eigen::MatrixXd X_des(nj, 1); 
+    X_des = des_robot_configuration.block<nj, 1>(7, 0);
+
+    Eigen::MatrixXd V(nv, 1);
+    V = robot_velocity.block<nv, 1>(6, 0);
+    Eigen::MatrixXd V_des(nv, 1); 
+    V_des = des_robot_velocity.block<nv, 1>(6, 0);
+
+    // PD controller
+    double kp = 5.0 * 9 * 0.025;
+    double kd = 0.1 * 9 * 0.025;
+    double kp_rw = 5.0 * 0.25;
+    double kd_rw = 0.1 * 0.25;
+
+    Eigen::VectorXd joint_control(nv, 1);
+    joint_control = kp * (X_des - X) + kd * (V_des - V);
+    joint_control[6] = pitch_err * kp_rw - kd_rw * rw_vel;
+
+    torques_ = joint_control;
     return;
 }
 
