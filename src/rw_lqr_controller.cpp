@@ -46,7 +46,7 @@ void RWLQRController::initialize(const pinocchio::Model& pinocchio_model)
         std::cout << "error opening file" << std::endl;
     }
 
-    std::cout << "Kinf calculated: " << Kinf_ << std::endl;
+    //std::cout << "Kinf calculated: " << Kinf_ << std::endl;
 
     // Defines if the model has a freeflyer.
     pinocchio_model_has_free_flyer_ =
@@ -147,8 +147,7 @@ void RWLQRController::run_controller(
     Eigen::VectorXd joint_control(nv, 1);
     joint_control = kp * (X_des - X) + kd * (V_des - V);
     joint_control[6] = pitch_err * kp_rw - kd_rw * rw_vel;
-
-    torques_ = joint_control;
+    joint_torques_ = joint_control; 
     return;
 }
 
