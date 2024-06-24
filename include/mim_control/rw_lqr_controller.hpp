@@ -131,12 +131,10 @@ private:  // attributes
 
     Eigen::Quaternion<double> ori_quat_;
     Eigen::Quaternion<double> des_ori_quat_;
-    Eigen::Matrix<double, 3, 3> ori_se3_;
-    Eigen::Matrix<double, 3, 3> des_ori_se3_;
-
-    Eigen::Vector3d ori_error_;
-    Eigen::Matrix<double, 3, 3> ori_error_se3_;
-    Eigen::Quaternion<double> ori_error_quat_;
+    Eigen::Vector3d ori_se3_;
+    Eigen::Vector3d des_ori_se3_;
+    Eigen::Vector3d euler_err_;
+    Eigen::Quaternion<double> ori_error_;
 };
 
 }  // namespace lqr_control
