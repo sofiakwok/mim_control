@@ -106,15 +106,15 @@ void RWLQRController::run_controller(
 
     // controlling only reaction wheel based on pitch angle
     // keeping all other joints locked at desired configuration
-    des_ori_quat_.w() = des_robot_configuration[0];
-    des_ori_quat_.vec()[0] = des_robot_configuration[1];
-    des_ori_quat_.vec()[1] = des_robot_configuration[2];
-    des_ori_quat_.vec()[2] = des_robot_configuration[3];
+    des_ori_quat_.w() = des_robot_configuration[3];
+    des_ori_quat_.vec()[0] = des_robot_configuration[0];
+    des_ori_quat_.vec()[1] = des_robot_configuration[1];
+    des_ori_quat_.vec()[2] = des_robot_configuration[2];
 
-    ori_quat_.w() = robot_configuration[0];
-    ori_quat_.vec()[0] = robot_configuration[1];
-    ori_quat_.vec()[1] = robot_configuration[2];
-    ori_quat_.vec()[2] = robot_configuration[3];
+    ori_quat_.w() = robot_configuration[3];
+    ori_quat_.vec()[0] = robot_configuration[0];
+    ori_quat_.vec()[1] = robot_configuration[1];
+    ori_quat_.vec()[2] = robot_configuration[2];
 
     //des_ori_se3_ = des_ori_quat_.toRotationMatrix().eulerAngles(2, 1, 0);
     //ori_se3_ = ori_quat_.toRotationMatrix().eulerAngles(2, 1, 0);
@@ -124,20 +124,33 @@ void RWLQRController::run_controller(
 
     // Compute the pitch error
     ori_error_ = des_ori_quat_ * ori_quat_.conjugate();
-    euler_err_ = ori_error_.toRotationMatrix().eulerAngles(2, 1, 0);
+    std::cout << "quat: w:" << ori_error_.w() << " ang:" << ori_error_.vec() << std::endl;
+    // converting to axis-angle representation
+    axis_error_ = ori_error_;
+    std::cout << "axis error: " << axis_error_.axis() << " angle:" << axis_error_.angle() << std::endl;
+    // float angle_rad = acos(ori_error_.w()) * 2;
+    // float x = ori_error_.vec()[0] / sin(angle_rad/2);
+    // float y = ori_error_.vec()[1] / sin(angle_rad/2);
+    // float z = ori_error_.vec()[2] / sin(angle_rad/2);
+    // std::cout << "pitch err: " << angle_rad << std::endl;
+    double pitch_err = axis_error_.angle();
     
-    double pitch_err = euler_err_(1);
     // map pitch error to [-pi/2, pi/2] space
-    int sign = (pitch_err > 0) - (pitch_err < 0);
-    auto tmp = fmod(pitch_err + sign*M_PI/2, M_PI/2);
-    //if (pitch_err < 0){
-    //    tmp += M_PI/2;
-    //}
-    double pitch_err_map = tmp;
-    //double pitch_err_map = fmod(pitch_err, M_PI/2)
-    std::cout << "pitch err: " << pitch_err_map << std::endl;
+    double pitch_err_map = pitch_err;
+    if (std::abs(pitch_err) > M_PI/2){
+        int sign = (pitch_err > 0) - (pitch_err < 0);
+        auto tmp = pitch_err - sign*M_PI;
+        pitch_err_map = tmp;
+    }
+    // auto tmp = fmod(pitch_err - sign*M_PI, M_PI/2);
+    // if (tmp < 0){
+    //     tmp += M_PI/2;
+    // }
+    // double pitch_err_map = fmod(pitch_err, M_PI/2);
+    std::cout << "mapped pitch err: " << pitch_err_map << std::endl;
 
     double rw_vel = robot_velocity[12];
+    std::cout << "rw vel: " << rw_vel << std::endl;
 
     const int nj = 7; // number of joints to control
     const int nv = 7; // number of velocities to control
@@ -152,15 +165,15 @@ void RWLQRController::run_controller(
     V_des = des_robot_velocity.block<nv, 1>(6, 0);
 
     // PD controller
-    double kp = 5.0;
+    double kp = 8.0;
     double kd = 0.1;
-    double kp_rw = 15.0;
-    double kd_rw = 0.1;
+    double kp_rw = 10.0;
+    double kd_rw = 0.01;
 
     Eigen::VectorXd joint_control(nv, 1);
     joint_control = kp * (X_des - X) + kd * (V_des - V);
     joint_control[6] = kp_rw * (0 - pitch_err_map) + kd_rw * (0 - rw_vel);
-    //std::cout << "rw control: " << joint_control[6] << std::endl;
+    std::cout << "rw control: " << joint_control[6] << std::endl;
     joint_torques_ = joint_control; 
     return;
 }

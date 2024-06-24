@@ -133,8 +133,8 @@ private:  // attributes
     Eigen::Quaternion<double> des_ori_quat_;
     Eigen::Vector3d ori_se3_;
     Eigen::Vector3d des_ori_se3_;
-    Eigen::Vector3d euler_err_;
     Eigen::Quaternion<double> ori_error_;
+    Eigen::AngleAxis<double> axis_error_;
 };
 
 }  // namespace lqr_control
