@@ -22,8 +22,6 @@ namespace mim_control
 class RWLQRController
 {
 public:
-    typedef Eigen::Array<double, 6, 1> Array6d;
-    typedef Eigen::Matrix<double, 6, 1> Vector6d;
 
     /**
      * @brief Construct a new RWLQRController object.

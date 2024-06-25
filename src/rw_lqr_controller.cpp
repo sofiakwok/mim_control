@@ -124,10 +124,10 @@ void RWLQRController::run_controller(
 
     // Compute the pitch error
     ori_error_ = des_ori_quat_ * ori_quat_.conjugate();
-    std::cout << "quat: w:" << ori_error_.w() << " ang:" << ori_error_.vec() << std::endl;
+    //std::cout << "quat: w:" << ori_error_.w() << " ang:" << ori_error_.vec() << std::endl;
     // converting to axis-angle representation
     axis_error_ = ori_error_;
-    std::cout << "axis error: " << axis_error_.axis() << " angle:" << axis_error_.angle() << std::endl;
+    //std::cout << "axis error: " << axis_error_.axis() << " angle:" << axis_error_.angle() << std::endl;
     // float angle_rad = acos(ori_error_.w()) * 2;
     // float x = ori_error_.vec()[0] / sin(angle_rad/2);
     // float y = ori_error_.vec()[1] / sin(angle_rad/2);
@@ -142,39 +142,36 @@ void RWLQRController::run_controller(
         auto tmp = pitch_err - sign*M_PI;
         pitch_err_map = tmp;
     }
-    // auto tmp = fmod(pitch_err - sign*M_PI, M_PI/2);
-    // if (tmp < 0){
-    //     tmp += M_PI/2;
-    // }
-    // double pitch_err_map = fmod(pitch_err, M_PI/2);
-    std::cout << "mapped pitch err: " << pitch_err_map << std::endl;
+    //std::cout << "mapped pitch err: " << pitch_err_map << std::endl;
 
     double rw_vel = robot_velocity[12];
-    std::cout << "rw vel: " << rw_vel << std::endl;
+    //std::cout << "rw vel: " << rw_vel << std::endl;
 
     const int nj = 7; // number of joints to control
-    const int nv = 7; // number of velocities to control
-    Eigen::MatrixXd X(nj, 1);
-    X = robot_configuration.block<nj, 1>(7, 0);
-    Eigen::MatrixXd X_des(nj, 1); 
-    X_des = des_robot_configuration.block<nj, 1>(7, 0);
+    Eigen::VectorXd X(nj, 1);
+    X = robot_configuration.tail<nj>();
+    Eigen::VectorXd X_des(nj, 1); 
+    X_des = des_robot_configuration.tail<nj>();
 
-    Eigen::MatrixXd V(nv, 1);
-    V = robot_velocity.block<nv, 1>(6, 0);
-    Eigen::MatrixXd V_des(nv, 1); 
-    V_des = des_robot_velocity.block<nv, 1>(6, 0);
+    Eigen::VectorXd V(nj, 1);
+    V = robot_velocity.tail<nj>();
+    Eigen::VectorXd V_des(nj, 1); 
+    V_des = des_robot_velocity.tail<nj>();
 
     // PD controller
-    double kp = 8.0;
-    double kd = 0.1;
-    double kp_rw = 10.0;
-    double kd_rw = 0.01;
+    double kp = 5.0 * 0.25;
+    double kd = 0.1 * 0.25;
+    double kp_rw = 10.0 * 0.75;
+    double kd_rw = 0.1 * 0.75;
 
-    Eigen::VectorXd joint_control(nv, 1);
+    Eigen::VectorXd joint_control(nj, 1);
     joint_control = kp * (X_des - X) + kd * (V_des - V);
-    joint_control[6] = kp_rw * (0 - pitch_err_map) + kd_rw * (0 - rw_vel);
-    std::cout << "rw control: " << joint_control[6] << std::endl;
+    //std::cout << "X: " << X << std::endl;
+    //joint_control[5] = 0.06; //kp_rw * (0 - pitch_err_map) + kd_rw * (0 - rw_vel);
+    
+    torques_ = joint_control;
     joint_torques_ = joint_control; 
+    //std::cout << "torques: " << joint_torques_ << std::endl;
     return;
 }
 
