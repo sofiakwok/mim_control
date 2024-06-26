@@ -173,15 +173,15 @@ void RWLQRController::run_controller(
     V_des = des_robot_velocity.tail<nj>();
 
     // PD controller
-    double kp = 5.0 * 0.75;
-    double kd = 0.1 * 0.75;
-    double kp_rw = 5.0 * 1.25;
-    double kd_rw = 0.1 * 1.25;
+    double kp = 5.0 * 0.7;
+    double kd = 0.1 * 0.7;
+    double kp_rw = 5.0 * 1.75;
+    double kd_rw = 0.1 * 1.75;
 
     Eigen::VectorXd joint_control(nj, 1);
     joint_control = kp * (X_des - X) + kd * (V_des - V);
     //std::cout << "X: " << X << std::endl;
-    joint_control[6] = kp_rw * (0 - pitch_err_map) + kd_rw * (0 - rw_vel);
+    //joint_control[6] = kp_rw * (0 - pitch_err_map) + kd_rw * (0 - rw_vel);
     
     torques_ = joint_control;
     joint_torques_ = joint_control; 
