@@ -123,17 +123,24 @@ void RWLQRController::run_controller(
     //std::cout << "ori: " << ori_se3_ << std::endl;
 
     // Compute the pitch error
-    ori_error_ = des_ori_quat_ * ori_quat_.conjugate();
-    //std::cout << "quat: w:" << ori_error_.w() << " ang:" << ori_error_.vec() << std::endl;
-    // converting to axis-angle representation
-    axis_error_ = ori_error_;
-    //std::cout << "axis error: " << axis_error_.axis() << " angle:" << axis_error_.angle() << std::endl;
-    // float angle_rad = acos(ori_error_.w()) * 2;
-    // float x = ori_error_.vec()[0] / sin(angle_rad/2);
-    // float y = ori_error_.vec()[1] / sin(angle_rad/2);
-    // float z = ori_error_.vec()[2] / sin(angle_rad/2);
+    ori_error_ = ori_quat_; //des_ori_quat_ * ori_quat_.conjugate();
+    std::cout << "quat error: w:" << ori_error_.w() << " ang:" << ori_error_.vec() << std::endl;
+    Eigen::Vector3d z_ref;
+    z_ref << 0, 0, 1; // TODO: put this in body frame
+    err_se3_ = ori_error_.toRotationMatrix();
+    auto rotated_body = ori_error_ * z_ref;
+    std::cout << "matrix mapped point: " << rotated_body << std::endl;
+    Eigen::Vector3d u;
+    u << robot_configuration[0], robot_configuration[1], robot_configuration[2];
+    double s = ori_error_.w();
+    auto body_point = (2.0f * u.dot(z_ref) * u) + ((s*s - u.dot(u)) * z_ref) + (2.0f * s * u.cross(z_ref));
+    std::cout << "body mapped point: " << body_point << std::endl;
+    // projecting onto xz plane and calculating pitch from there
+    double pitch_err = std::atan(body_point[0] / body_point[2]);
+    // axis_error_ = ori_error_;
+    // std::cout << "axis error: " << axis_error_.axis() << " angle:" << axis_error_.angle() << std::endl;
     // std::cout << "pitch err: " << angle_rad << std::endl;
-    double pitch_err = axis_error_.angle();
+    // double pitch_err = axis_error_.angle();
     
     // map pitch error to [-pi/2, pi/2] space
     double pitch_err_map = pitch_err;
@@ -142,7 +149,7 @@ void RWLQRController::run_controller(
         auto tmp = pitch_err - sign*M_PI;
         pitch_err_map = tmp;
     }
-    //std::cout << "mapped pitch err: " << pitch_err_map << std::endl;
+    std::cout << "mapped pitch err: " << pitch_err_map << std::endl;
 
     double rw_vel = robot_velocity[12];
     //std::cout << "rw vel: " << rw_vel << std::endl;
@@ -161,13 +168,13 @@ void RWLQRController::run_controller(
     // PD controller
     double kp = 5.0 * 0.25;
     double kd = 0.1 * 0.25;
-    double kp_rw = 10.0 * 0.75;
-    double kd_rw = 0.1 * 0.75;
+    double kp_rw = 5.0 * 0.25;
+    double kd_rw = 0.1 * 0.25;
 
     Eigen::VectorXd joint_control(nj, 1);
     joint_control = kp * (X_des - X) + kd * (V_des - V);
     //std::cout << "X: " << X << std::endl;
-    //joint_control[5] = 0.06; //kp_rw * (0 - pitch_err_map) + kd_rw * (0 - rw_vel);
+    joint_control[6] = kp_rw * (0 - pitch_err_map) + kd_rw * (0 - rw_vel);
     
     torques_ = joint_control;
     joint_torques_ = joint_control; 
