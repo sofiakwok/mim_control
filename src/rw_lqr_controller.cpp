@@ -124,7 +124,7 @@ void RWLQRController::run_controller(
 
     // Compute the pitch error
     ori_error_ = ori_quat_; //des_ori_quat_ * ori_quat_.conjugate();
-    std::cout << "quat error: w:" << ori_error_.w() << " ang:" << ori_error_.vec() << std::endl;
+    //std::cout << "quat error: w:" << ori_error_.w() << " ang:" << ori_error_.vec() << std::endl;
     Eigen::Vector3d u;
     u << robot_configuration[0], robot_configuration[1], robot_configuration[2];
     double s = ori_error_.w();
@@ -133,7 +133,7 @@ void RWLQRController::run_controller(
     x_ref << 1, 0, 0;
     auto yaw_vec = (2.0f * u.dot(x_ref) * u) + ((s*s - u.dot(u)) * x_ref) + (2.0f * s * u.cross(x_ref));
     double yaw_err = std::atan(yaw_vec[1] / yaw_vec[0]);
-    std::cout << "yaw err: " << yaw_err << std::endl;
+    //std::cout << "yaw err: " << yaw_err << std::endl;
     // calculate pitch error
     Eigen::Vector3d z_ref;
     z_ref << 0, 0, 1; 
@@ -141,7 +141,7 @@ void RWLQRController::run_controller(
     Eigen::Matrix<double, 3, 3> yaw_transform;
     yaw_transform = Eigen::AngleAxisd(yaw_err, Eigen::Vector3d::UnitZ());
     auto body_frame = yaw_transform * body_point;
-    std::cout << "body mapped point: " << body_frame << std::endl;
+    //std::cout << "body mapped point: " << body_frame << std::endl;
     // projecting onto xz plane and calculating pitch from there
     double pitch_err = std::atan(body_frame[0] / body_frame[2]);
     // axis_error_ = ori_error_;
@@ -156,7 +156,7 @@ void RWLQRController::run_controller(
         auto tmp = pitch_err - sign*M_PI;
         pitch_err_map = tmp;
     }
-    std::cout << "mapped pitch err: " << pitch_err_map << std::endl;
+    //std::cout << "mapped pitch err: " << pitch_err_map << std::endl;
 
     double rw_vel = robot_velocity[12];
     //std::cout << "rw vel: " << rw_vel << std::endl;
@@ -173,10 +173,10 @@ void RWLQRController::run_controller(
     V_des = des_robot_velocity.tail<nj>();
 
     // PD controller
-    double kp = 5.0 * 0.25;
-    double kd = 0.1 * 0.25;
-    double kp_rw = 5.0 * 0.5;
-    double kd_rw = 0.1 * 0.5;
+    double kp = 5.0 * 0.75;
+    double kd = 0.1 * 0.75;
+    double kp_rw = 5.0 * 1.25;
+    double kd_rw = 0.1 * 1.25;
 
     Eigen::VectorXd joint_control(nj, 1);
     joint_control = kp * (X_des - X) + kd * (V_des - V);
