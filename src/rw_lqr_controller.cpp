@@ -157,6 +157,9 @@ void RWLQRController::run_controller(
         pitch_err_map = tmp;
     }
     //std::cout << "mapped pitch err: " << pitch_err_map << std::endl;
+    if (std::abs(pitch_err_map) < 0.1){
+        pitch_err_map = 0;
+    }
 
     double rw_vel = robot_velocity[12];
     //std::cout << "rw vel: " << rw_vel << std::endl;
@@ -173,18 +176,19 @@ void RWLQRController::run_controller(
     V_des = des_robot_velocity.tail<nj>();
 
     // PD controller
-    double kp = 5.0 * 0.7;
-    double kd = 0.1 * 0.7;
-    double kp_rw = 5.0 * 1.75;
-    double kd_rw = 0.1 * 1.75;
+    double kp = 5.0 * 0.3;
+    double kd = 0.1 * 0.3;
+    double kp_rw = -5.0 * 1.0;
+    double kd_rw = -0.1 * 1.0;
 
     Eigen::VectorXd joint_control(nj, 1);
-    joint_control = kp * (X_des - X) + kd * (V_des - V);
+    joint_control = kp * (X_des - X) - kd * (V_des - V);
     //std::cout << "X: " << X << std::endl;
-    //joint_control[6] = kp_rw * (0 - pitch_err_map) + kd_rw * (0 - rw_vel);
+    joint_control[6] = kp_rw * (0 - pitch_err_map) - kd_rw * (0 - rw_vel);
     
     torques_ = joint_control;
     joint_torques_ = joint_control; 
+    // rw torque turns wheel clockwise (as viewed from left side of robot)
     //std::cout << "torques: " << joint_torques_ << std::endl;
     return;
 }
