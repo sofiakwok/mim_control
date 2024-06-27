@@ -15,6 +15,7 @@
 #include "mim_control/dynamic_graph/rw_impedance_controller.hpp"
 #include "mim_control/dynamic_graph/lqr_controller.hpp"
 #include "mim_control/dynamic_graph/rw_lqr_controller.hpp"
+#include "mim_control/dynamic_graph/rw_pd_controller.hpp"
 
 namespace dg = dynamicgraph;
 
@@ -84,6 +85,20 @@ BOOST_PYTHON_MODULE(wbc)
             return;
         },
         "Initialize the RWLQRController.");
+
+    using mim_control::dynamic_graph::RWPDController;
+    dynamicgraph::python::exposeEntity<RWPDController>().def(
+        "initialize",
+        +[](RWPDController& RWPDController,
+            const boost::python::object& pinocchio_model) {
+            const pinocchio::Model& pinocchio_model_ref =
+                boost::python::extract<const pinocchio::Model&>(
+                    pinocchio_model);
+            RWPDController.initialize(
+                pinocchio_model_ref);
+            return;
+        },
+        "Initialize the RWPDController.");
 
     using mim_control::dynamic_graph::CentroidalPDController;
     dynamicgraph::python::exposeEntity<CentroidalPDController>();
