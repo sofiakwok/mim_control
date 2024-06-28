@@ -157,19 +157,24 @@ void RWPDController::run_controller(
     Eigen::VectorXd V_des(nj, 1); 
     V_des = des_robot_velocity.tail<nj>();
 
-    // PD controller
-    // hardware settings
-    double kp = 5.0 * 0.25;
-    double kd = 0.01 * 0.25;
-    // sim settings
-    // kp = 5.0 * 0.25;
-    // kd = -0.1 * 0.25;
-    double kp_rw = -5.0 * 1.25;
-    double kd_rw = -0.1 * 1.25;
+    // // PD controller
+    // // hardware settings
+    // double kp = 5.0 * 0.25;
+    // double kd = 0.01 * 0.25;
+    // // sim settings
+    // // kp = 5.0 * 0.25;
+    // // kd = -0.1 * 0.25;
+    // double kp_rw = -5.0 * 1.25;
+    // double kd_rw = -0.1 * 1.25;
 
     // getting settings from yaml file
     std::string yaml_path = "/home/sofia/bolt_hardware/workspace/src/robot_properties_bolt/src/robot_properties_bolt/resources/odri_control_interface/bolt_rw_gains.yaml";
     auto gains = odri_control_interface::PDFromYamlFile(yaml_path);
+    Eigen::VectorXd pd_values = *gains; 
+    double kp = pd_values(0);
+    double kd = pd_values(1);
+    double kp_rw = pd_values(2);
+    double kd_rw = pd_values(3);
 
     Eigen::VectorXd joint_control(nj, 1);
     joint_control = kp * (X_des - X) - kd * (V_des - V);
