@@ -9,7 +9,7 @@
 
 #include "mim_control/rw_pd_controller.hpp"
 #include "pinocchio/algorithm/frames.hpp"
-
+#include "odri_control_interface/utils.hpp"
 
 namespace mim_control
 {
@@ -159,13 +159,17 @@ void RWPDController::run_controller(
 
     // PD controller
     // hardware settings
-    double kp = 5.0 * 0.7;
-    double kd = 0.1 * 0.7;
+    double kp = 5.0 * 0.25;
+    double kd = 0.01 * 0.25;
     // sim settings
     // kp = 5.0 * 0.25;
     // kd = -0.1 * 0.25;
     double kp_rw = -5.0 * 1.25;
     double kd_rw = -0.1 * 1.25;
+
+    // getting settings from yaml file
+    std::string yaml_path = "/home/sofia/bolt_hardware/workspace/src/robot_properties_bolt/src/robot_properties_bolt/resources/odri_control_interface/bolt_rw_gains.yaml";
+    auto gains = odri_control_interface::PDFromYamlFile(yaml_path);
 
     Eigen::VectorXd joint_control(nj, 1);
     joint_control = kp * (X_des - X) - kd * (V_des - V);

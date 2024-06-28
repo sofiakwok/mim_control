@@ -19,6 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Local depends
 find_package(yaml_utils REQUIRED)
 find_package(mpi_cmake_modules REQUIRED)
+find_package(odri_control_interface REQUIRED)
 
 # External dependencies Extract major/minor python version
 find_package(Eigen3 REQUIRED)
@@ -58,6 +59,8 @@ target_link_libraries(${PROJECT_NAME} pinocchio::pinocchio)
 target_link_libraries(${PROJECT_NAME} Eigen3::Eigen)
 target_link_libraries(${PROJECT_NAME} eiquadprog::eiquadprog)
 target_link_libraries(${PROJECT_NAME} yaml_utils::yaml_utils)
+target_link_libraries(${PROJECT_NAME} odri_control_interface::odri_control_interface)
+
 
 # Includes. Add the include dependencies
 target_include_directories(
