@@ -86,24 +86,6 @@ void RWPDController::run_controller(
     Eigen::Ref<const Eigen::VectorXd> des_robot_configuration,
     Eigen::Ref<const Eigen::VectorXd> des_robot_velocity)
 {
-    /*int nx = 27;
-    Eigen::MatrixXd X(nx, 1);
-    X.block<14, 1>(0, 0) = robot_configuration;
-    X.block<13, 1>(14, 0) = robot_velocity;
-    Eigen::MatrixXd X_des(nx, 1); 
-    X_des.block<14, 1>(0, 0) = des_robot_configuration;
-    X_des.block<13, 1>(14, 0) = des_robot_velocity;
-    std::cout << "X: " << X << std::endl;
-    std::cout << "x diff: " << X - X_des << std::endl;
-    torques_ = -Kinf_ * (X - X_des);
-    if (pinocchio_model_has_free_flyer_)
-        joint_torques_ = torques_.tail(pinocchio_model_.nv - 6);
-    else
-    {
-        joint_torques_ = torques_;
-    }
-    std::cout << "joint torques: " << joint_torques_ << std::endl;*/
-
     // controlling only reaction wheel based on pitch angle
     // keeping all other joints locked at desired configuration
     des_ori_quat_.w() = des_robot_configuration[3];
@@ -176,10 +158,14 @@ void RWPDController::run_controller(
     V_des = des_robot_velocity.tail<nj>();
 
     // PD controller
-    double kp = 5.0 * 0.3;
-    double kd = 0.1 * 0.3;
-    double kp_rw = -5.0 * 1.0;
-    double kd_rw = -0.1 * 1.0;
+    // hardware settings
+    double kp = 5.0 * 0.7;
+    double kd = 0.1 * 0.7;
+    // sim settings
+    // kp = 5.0 * 0.25;
+    // kd = -0.1 * 0.25;
+    double kp_rw = -5.0 * 1.25;
+    double kd_rw = -0.1 * 1.25;
 
     Eigen::VectorXd joint_control(nj, 1);
     joint_control = kp * (X_des - X) - kd * (V_des - V);
