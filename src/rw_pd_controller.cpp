@@ -139,7 +139,7 @@ void RWPDController::run_controller(
         pitch_err_map = tmp;
     }
     //std::cout << "mapped pitch err: " << pitch_err_map << std::endl;
-    if (std::abs(pitch_err_map) < 0.1){
+    if (std::abs(pitch_err_map) < 0.05){
         pitch_err_map = 0;
     }
 
@@ -157,17 +157,18 @@ void RWPDController::run_controller(
     Eigen::VectorXd V_des(nj, 1); 
     V_des = des_robot_velocity.tail<nj>();
 
-    // // PD controller
-    // // hardware settings
-    // double kp = 5.0 * 0.25;
-    // double kd = 0.01 * 0.25;
-    // // sim settings
-    // // kp = 5.0 * 0.25;
-    // // kd = -0.1 * 0.25;
-    // double kp_rw = -5.0 * 1.25;
-    // double kd_rw = -0.1 * 1.25;
+    // TODO: gravity compensation torque
+    // need for hip FE and knee joints
+    double m_robot = 1.34; // original robot: 1.34kg
+    double l_hip = 0.455; // meters
+    double l_knee = 0.255;
+    double theta_hip = X(1); //bending angle of LHFE
+    double theta_knee = X(2); //bending angle of LK
 
-    // getting settings from yaml file
+    double hip_torque = -m_robot * 9.81 * l_knee * std::cos(theta_hip);
+    double knee_torque = -m_robot * 9.81 * l_knee * std::cos(theta_knee);
+
+    // getting PD gain parameters from yaml file
     std::string yaml_path = "/home/sofia/bolt_hardware/workspace/src/robot_properties_bolt/src/robot_properties_bolt/resources/odri_control_interface/bolt_rw_gains.yaml";
     auto gains = odri_control_interface::PDFromYamlFile(yaml_path);
     Eigen::VectorXd pd_values = *gains; 

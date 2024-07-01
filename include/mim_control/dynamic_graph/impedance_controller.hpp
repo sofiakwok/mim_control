@@ -78,6 +78,9 @@ public:
     /** @brief */
     dynamicgraph::SignalPtr<dynamicgraph::Vector, int> feed_forward_force_sin_;
 
+    /** @brief Gain multiplying the output torque. */
+    dynamicgraph::SignalPtr<double, int> output_torque_sin_;
+
     /*
      * Output Signals.
      */

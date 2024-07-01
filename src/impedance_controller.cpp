@@ -68,7 +68,8 @@ void ImpedanceController::run(
     const double& gain_feed_forward_force,
     const pinocchio::SE3& desired_end_frame_placement,
     const pinocchio::Motion& desired_end_frame_velocity,
-    const pinocchio::Force& feed_forward_force)
+    const pinocchio::Force& feed_forward_force, 
+    const double& output_torque)
 {
     assert(robot_configuration.size() == pinocchio_model_.nq &&
            "robot_configuration is not of the good size.");
@@ -93,7 +94,8 @@ void ImpedanceController::run(
         gain_feed_forward_force,
         desired_end_frame_placement,
         desired_end_frame_velocity,
-        feed_forward_force
+        feed_forward_force, 
+        output_torque
     );
 }
 
@@ -104,7 +106,8 @@ void ImpedanceController::run_precomputed_data(
     const double& gain_feed_forward_force,
     const pinocchio::SE3& desired_end_frame_placement,
     const pinocchio::Motion& desired_end_frame_velocity,
-    const pinocchio::Force& feed_forward_force)
+    const pinocchio::Force& feed_forward_force, 
+    const double& output_torque)
 {
     root_placement_ = pinocchio_data.oMf[root_frame_index_];
     end_placement_ = pinocchio_data.oMf[end_frame_index_];
@@ -160,7 +163,7 @@ void ImpedanceController::run_precomputed_data(
     // compute the output torques
     // std::cout << "impedance force: " << impedance_force_ << std::endl;
     // std::cout << "impedance jacobian: " << impedance_jacobian_ << std::endl;
-    torques_ = (impedance_jacobian_.transpose() * impedance_force_);
+    torques_ = output_torque * (impedance_jacobian_.transpose() * impedance_force_);
 
     if (pinocchio_model_has_free_flyer_)
         joint_torques_ = torques_.tail(pinocchio_model_.nv - 6);

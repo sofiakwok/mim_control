@@ -88,7 +88,8 @@ public:
              const double& gain_feed_forward_force,
              const pinocchio::SE3& desired_end_frame_placement,
              const pinocchio::Motion& desired_end_frame_velocity,
-             const pinocchio::Force& feed_forward_force);
+             const pinocchio::Force& feed_forward_force, 
+             const double& output_torque);
 
 
     /**
@@ -113,7 +114,8 @@ public:
                               const double& gain_feed_forward_force,
                               const pinocchio::SE3& desired_end_frame_placement,
                               const pinocchio::Motion& desired_end_frame_velocity,
-                              const pinocchio::Force& feed_forward_force);
+                              const pinocchio::Force& feed_forward_force, 
+                              const double& output_torque);
 
     /**
      * @brief Get the computed torques from the impedance controller.

@@ -146,6 +146,8 @@ class WholeBodyController:
 
             self.imps.append(imp)
 
+            self.output_torque = imp.output_torque_sin 
+
         # The final computed control.
         self.joint_torques_sout = self.imps[0].joint_torque_sout
         #print("joint_torques_sout: " + str(self.joint_torques_sout))
@@ -170,6 +172,7 @@ class WholeBodyController:
         )
 
         self.cnt_array_sin = self.f_ctrl.cnt_array_sin
+        
 
     def trace(self, robot=None):
         print("wbc trace robot: " + str(robot))
