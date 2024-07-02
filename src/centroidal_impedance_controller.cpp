@@ -172,11 +172,13 @@ void CentroidalImpedanceController::run(
         f.head<3>() = forces.block<3, 1>(3 * i, 0);
         pinocchio::Force F(f);
 
+        double gain = 0;
+
         impedance_controllers_[i].run_precomputed_data(
             pinocchio_data_,
             frame_placement_error_gain_, frame_velocity_error_gain_,
             1.,
-            pos, vel, F
+            pos, vel, F, gain
         );
 
         joint_torques_ += impedance_controllers_[i].get_joint_torques();

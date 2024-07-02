@@ -146,8 +146,6 @@ class WholeBodyController:
 
             self.imps.append(imp)
 
-            self.output_torque = imp.output_torque_sin 
-
         # The final computed control.
         self.joint_torques_sout = self.imps[0].joint_torque_sout
         #print("joint_torques_sout: " + str(self.joint_torques_sout))
@@ -172,6 +170,9 @@ class WholeBodyController:
         )
 
         self.cnt_array_sin = self.f_ctrl.cnt_array_sin
+
+        for imp in self.imps:
+            self.output_torque = imp.output_torque_sin 
         
 
     def trace(self, robot=None):
@@ -205,6 +206,7 @@ class WholeBodyController:
             robot.add_trace(imp.name, "desired_end_frame_placement_sin")
             robot.add_trace(imp.name, "desired_end_frame_velocity_sin")
             robot.add_trace(imp.name, "feed_forward_force_sin")
+            robot.add_trace(imp.name, "output_torque_sin")
 
         #robot.start_tracer()
 
@@ -279,7 +281,6 @@ class WholeBodyController:
 
         # Finally, plug the computed torques to the output.
         dg.plug(self.joint_torques_sout, ctrl_joint_torque_sin)
-        print("joint torques sout: " + str(self.joint_torques_sout.value))
 
     def plug_base_as_com(self, base_position, base_velocity_world):
         """ Instead of the COM use the base as com. """

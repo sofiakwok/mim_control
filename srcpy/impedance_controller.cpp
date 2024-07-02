@@ -44,7 +44,8 @@ void bind_impedance_controller(py::module& module)
                 const double& gain_feed_forward_force,
                 py::object py_desired_end_frame_placement,
                 py::object py_desired_end_frame_velocity,
-                py::object py_feed_forward_force) {
+                py::object py_feed_forward_force,
+                const double& output_torque) {
                  const pinocchio::SE3& desired_end_frame_placement =
                      boost::python::extract<const pinocchio::SE3&>(
                          py_desired_end_frame_placement.ptr());
@@ -61,7 +62,8 @@ void bind_impedance_controller(py::module& module)
                          gain_feed_forward_force,
                          desired_end_frame_placement,
                          desired_end_frame_velocity,
-                         feed_forward_force);
+                         feed_forward_force, 
+                         output_torque);
                  return;
              })
         .def("get_torques",
