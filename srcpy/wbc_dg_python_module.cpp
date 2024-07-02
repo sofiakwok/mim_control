@@ -16,6 +16,7 @@
 #include "mim_control/dynamic_graph/lqr_controller.hpp"
 #include "mim_control/dynamic_graph/rw_lqr_controller.hpp"
 #include "mim_control/dynamic_graph/rw_pd_controller.hpp"
+#include "mim_control/dynamic_graph/bolt_pd.hpp"
 
 namespace dg = dynamicgraph;
 
@@ -99,6 +100,20 @@ BOOST_PYTHON_MODULE(wbc)
             return;
         },
         "Initialize the RWPDController.");
+
+    using mim_control::dynamic_graph::BoltPD;
+    dynamicgraph::python::exposeEntity<BoltPD>().def(
+        "initialize",
+        +[](BoltPD& BoltPD,
+            const boost::python::object& pinocchio_model) {
+            const pinocchio::Model& pinocchio_model_ref =
+                boost::python::extract<const pinocchio::Model&>(
+                    pinocchio_model);
+            BoltPD.initialize(
+                pinocchio_model_ref);
+            return;
+        },
+        "Initialize the BoltPD.");
 
     using mim_control::dynamic_graph::CentroidalPDController;
     dynamicgraph::python::exposeEntity<CentroidalPDController>();

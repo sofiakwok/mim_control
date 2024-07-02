@@ -48,6 +48,7 @@ class WholeBodyController:
 
         self.w_com_ff_sin, self.w_com_ff_sout = constVectorOp(np.zeros(6))
 
+        print("initialized WholeBodyController")
         ###
         # CentroidalPDController
         self.wcom_pd_ctrl = mim_control_dg.CentroidalPDController(
@@ -111,7 +112,6 @@ class WholeBodyController:
             self.f_ctrl.w_com_sin,
         )
         dg.plug(self.rel_eff_pos, self.f_ctrl.relative_position_endeff_sin)
-
         ###
         # Impedance controllers.
         self.imps = []
@@ -146,6 +146,7 @@ class WholeBodyController:
 
             self.imps.append(imp)
 
+
         # The final computed control.
         self.joint_torques_sout = self.imps[0].joint_torque_sout
         #print("joint_torques_sout: " + str(self.joint_torques_sout))
@@ -173,6 +174,8 @@ class WholeBodyController:
 
         for imp in self.imps:
             self.output_torque = imp.output_torque_sin 
+
+        print("done with init()")
         
 
     def trace(self, robot=None):
