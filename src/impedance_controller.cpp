@@ -8,6 +8,7 @@
  */
 
 #include "mim_control/impedance_controller.hpp"
+#include "odri_control_interface/utils.hpp"
 
 #include "pinocchio/algorithm/frames.hpp"
 
@@ -88,7 +89,9 @@ void ImpedanceController::run(
     pinocchio::computeJointJacobians(
         pinocchio_model_, pinocchio_data_, robot_configuration);
 
-    run_precomputed_data(pinocchio_data_,
+    run_precomputed_data(robot_configuration,
+        robot_velocity, 
+        pinocchio_data_,
         gain_proportional,
         gain_derivative,
         gain_feed_forward_force,
@@ -100,6 +103,8 @@ void ImpedanceController::run(
 }
 
 void ImpedanceController::run_precomputed_data(
+    Eigen::Ref<const Eigen::VectorXd> robot_configuration,
+    Eigen::Ref<const Eigen::VectorXd> robot_velocity,
     pinocchio::Data& pinocchio_data,
     Eigen::Ref<const Array6d> gain_proportional,
     Eigen::Ref<const Array6d> gain_derivative,
@@ -164,6 +169,28 @@ void ImpedanceController::run_precomputed_data(
     // std::cout << "impedance force: " << impedance_force_ << std::endl;
     // std::cout << "impedance jacobian: " << impedance_jacobian_ << std::endl;
     torques_ = output_torque * (impedance_jacobian_.transpose() * impedance_force_);
+
+    //write PD controller to hold robot 
+    const int nj = 6;
+    Eigen::VectorXd X(nj, 1);
+    X = robot_configuration.tail<nj>();
+    Eigen::VectorXd X_des(nj, 1); 
+    X_des << 0, 0.2, -0.4, 0, 0.2, -0.4;
+
+    Eigen::VectorXd V(nj, 1);
+    V = robot_velocity.tail<nj>();
+    Eigen::VectorXd V_des(nj, 1); 
+    V_des << 0, 0, 0, 0, 0, 0;
+
+    // getting PD gain parameters from yaml file
+    std::string yaml_path = "/home/sofia/bolt_hardware/workspace/src/robot_properties_bolt/src/robot_properties_bolt/resources/odri_control_interface/bolt_rw_gains.yaml";
+    auto gains = odri_control_interface::PDFromYamlFile(yaml_path);
+    Eigen::VectorXd pd_values = *gains; 
+    double kp = pd_values(0);
+    double kd = pd_values(1);
+
+    Eigen::VectorXd joint_control(nj, 1);
+    joint_control = (1 - output_torque) * (kp * (X_des - X) - kd * (V_des - V));
 
     if (pinocchio_model_has_free_flyer_)
         joint_torques_ = torques_.tail(pinocchio_model_.nv - 6);

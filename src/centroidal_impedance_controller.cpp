@@ -175,6 +175,8 @@ void CentroidalImpedanceController::run(
         double gain = 0;
 
         impedance_controllers_[i].run_precomputed_data(
+            robot_configuration, 
+            robot_velocity, 
             pinocchio_data_,
             frame_placement_error_gain_, frame_velocity_error_gain_,
             1.,

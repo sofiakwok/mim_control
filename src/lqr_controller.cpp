@@ -26,7 +26,7 @@ void LQRController::initialize(const pinocchio::Model& pinocchio_model)
     pinocchio_data_ = pinocchio::Data(pinocchio_model_);
 
     int nu = 6;
-    int nx = 25;
+    int nx = 24;
 
     Kinf_.resize(nu, nx);
     Kinf_.fill(0);
@@ -86,11 +86,14 @@ void LQRController::run_controller(
     Eigen::Ref<const Eigen::VectorXd> des_robot_configuration,
     Eigen::Ref<const Eigen::VectorXd> des_robot_velocity)
 {
+    // convert quaternion to rotation
+    Eigen::VectorXd quat(4, 1);
+    quat << robot_configuration[3], robot_configuration[4], robot_configuration[5], robot_configuration[6];
     Eigen::MatrixXd X(25, 1);
     X.block<13, 1>(0, 0) = robot_configuration;
     X.block<12, 1>(13, 0) = robot_velocity;
-    Eigen::MatrixXd X_des(25, 1); 
-    X_des.block<13, 1>(0, 0) = des_robot_configuration;
+    Eigen::MatrixXd X_des(24, 1); 
+    X_des.block<12, 1>(0, 0) = des_robot_configuration;
     X_des.block<12, 1>(13, 0) = des_robot_velocity;
     std::cout << "X: " << X << std::endl;
     std::cout << "x diff: " << X - X_des << std::endl;

@@ -108,7 +108,9 @@ public:
      * @param feed_forward_force feed forward force applied to the foot by the
      * environment.
      */
-    void run_precomputed_data(pinocchio::Data& pinocchio_data,
+    void run_precomputed_data(Eigen::Ref<const Eigen::VectorXd> robot_configuration,
+                              Eigen::Ref<const Eigen::VectorXd> robot_velocity,
+                              pinocchio::Data& pinocchio_data,
                               Eigen::Ref<const Array6d> gain_proportional,
                               Eigen::Ref<const Array6d> gain_derivative,
                               const double& gain_feed_forward_force,
