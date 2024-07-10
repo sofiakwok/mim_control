@@ -59,6 +59,14 @@ void ImpedanceController::initialize(const pinocchio::Model& pinocchio_model,
     // Intermediate variables.
     root_orientation_ = pinocchio::SE3::Identity();
     end_orientation_ = pinocchio::SE3::Identity();
+
+    // getting PD gain parameters from yaml file
+    std::string yaml_path = "/home/sofia/bolt_hardware/workspace/src/robot_properties_bolt/src/robot_properties_bolt/resources/odri_control_interface/bolt_rw_gains.yaml";
+    auto gains = odri_control_interface::PDFromYamlFile(yaml_path);
+    Eigen::VectorXd pd_values = *gains; 
+    kp_ = pd_values(4);
+    kd_ = pd_values(5);
+    std::cout << "kp: " << kp_ << std::endl; 
 }
 
 void ImpedanceController::run(
@@ -168,29 +176,26 @@ void ImpedanceController::run_precomputed_data(
     // compute the output torques
     // std::cout << "impedance force: " << impedance_force_ << std::endl;
     // std::cout << "impedance jacobian: " << impedance_jacobian_ << std::endl;
-    torques_ = output_torque * (impedance_jacobian_.transpose() * impedance_force_);
+    Eigen::VectorXd wbc_torque(12, 1);
+    wbc_torque = output_torque * (impedance_jacobian_.transpose() * impedance_force_);
 
     //write PD controller to hold robot 
-    const int nj = 6;
+    const int nj = 6; //number of joints
     Eigen::VectorXd X(nj, 1);
     X = robot_configuration.tail<nj>();
     Eigen::VectorXd X_des(nj, 1); 
-    X_des << 0, 0.2, -0.4, 0, 0.2, -0.4;
+    X_des << 0.0, 0.2, -0.4, 0.0, 0.2, -0.4;
 
     Eigen::VectorXd V(nj, 1);
     V = robot_velocity.tail<nj>();
     Eigen::VectorXd V_des(nj, 1); 
     V_des << 0, 0, 0, 0, 0, 0;
 
-    // getting PD gain parameters from yaml file
-    std::string yaml_path = "/home/sofia/bolt_hardware/workspace/src/robot_properties_bolt/src/robot_properties_bolt/resources/odri_control_interface/bolt_rw_gains.yaml";
-    auto gains = odri_control_interface::PDFromYamlFile(yaml_path);
-    Eigen::VectorXd pd_values = *gains; 
-    double kp = pd_values(0);
-    double kd = pd_values(1);
+    Eigen::VectorXd pd_torque(nj, 1);
+    pd_torque = (1 - output_torque) * ((kp_ * (X_des - X) - kd_ * (V_des - V)));
 
-    Eigen::VectorXd joint_control(nj, 1);
-    joint_control = (1 - output_torque) * (kp * (X_des - X) - kd * (V_des - V));
+    // setting joint torques to be a combination of PD and WBC control
+    torques_ = pd_torque + wbc_torque.tail<nj>();
 
     if (pinocchio_model_has_free_flyer_)
         joint_torques_ = torques_.tail(pinocchio_model_.nv - 6);
@@ -198,7 +203,6 @@ void ImpedanceController::run_precomputed_data(
     {
         joint_torques_ = torques_;
     }
-    // std::cout << "joint torques: " << joint_torques_ << std::endl;
     return;
 }
 

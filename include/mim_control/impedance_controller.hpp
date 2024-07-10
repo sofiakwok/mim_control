@@ -212,6 +212,9 @@ private:  // attributes
     /** @brief Output torques. */
     Eigen::VectorXd joint_torques_;
 
+    double kp_;
+    double kd_;
+
     /** @brief Checks out if the Pinocchio rigid body model of the robot
      * contains a free-flyer. This is used to return the command i.e. the
      * torques to be applied to the joints only. */
