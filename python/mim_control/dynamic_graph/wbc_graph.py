@@ -174,6 +174,7 @@ class WholeBodyController:
 
         for imp in self.imps:
             self.output_torque = imp.output_torque_sin 
+            self.desired_position = imp.desired_joint_pos_sin
 
         print("done with init()")
         

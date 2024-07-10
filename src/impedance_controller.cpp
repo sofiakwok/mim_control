@@ -78,7 +78,8 @@ void ImpedanceController::run(
     const pinocchio::SE3& desired_end_frame_placement,
     const pinocchio::Motion& desired_end_frame_velocity,
     const pinocchio::Force& feed_forward_force, 
-    const double& output_torque)
+    const double& output_torque,
+    Eigen::Ref<const Eigen::VectorXd> desired_joint_pos)
 {
     assert(robot_configuration.size() == pinocchio_model_.nq &&
            "robot_configuration is not of the good size.");
@@ -106,7 +107,8 @@ void ImpedanceController::run(
         desired_end_frame_placement,
         desired_end_frame_velocity,
         feed_forward_force, 
-        output_torque
+        output_torque, 
+        desired_joint_pos
     );
 }
 
@@ -120,7 +122,8 @@ void ImpedanceController::run_precomputed_data(
     const pinocchio::SE3& desired_end_frame_placement,
     const pinocchio::Motion& desired_end_frame_velocity,
     const pinocchio::Force& feed_forward_force, 
-    const double& output_torque)
+    const double& output_torque, 
+    Eigen::Ref<const Eigen::VectorXd> desired_joint_pos)
 {
     root_placement_ = pinocchio_data.oMf[root_frame_index_];
     end_placement_ = pinocchio_data.oMf[end_frame_index_];
@@ -184,7 +187,7 @@ void ImpedanceController::run_precomputed_data(
     Eigen::VectorXd X(nj, 1);
     X = robot_configuration.tail<nj>();
     Eigen::VectorXd X_des(nj, 1); 
-    X_des << 0.0, 0.2, -0.4, 0.0, 0.2, -0.4;
+    X_des = desired_joint_pos;
 
     Eigen::VectorXd V(nj, 1);
     V = robot_velocity.tail<nj>();

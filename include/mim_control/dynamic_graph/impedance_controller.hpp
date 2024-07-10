@@ -81,6 +81,9 @@ public:
     /** @brief Gain multiplying the output torque. */
     dynamicgraph::SignalPtr<double, int> output_torque_sin_;
 
+    /** @brief Desired joint positions for PD controller. */
+    dynamicgraph::SignalPtr<dynamicgraph::Vector, int> desired_joint_pos_sin_;
+
     /*
      * Output Signals.
      */

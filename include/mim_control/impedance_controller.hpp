@@ -89,7 +89,8 @@ public:
              const pinocchio::SE3& desired_end_frame_placement,
              const pinocchio::Motion& desired_end_frame_velocity,
              const pinocchio::Force& feed_forward_force, 
-             const double& output_torque);
+             const double& output_torque, 
+             Eigen::Ref<const Eigen::VectorXd> desired_joint_pos);
 
 
     /**
@@ -117,7 +118,8 @@ public:
                               const pinocchio::SE3& desired_end_frame_placement,
                               const pinocchio::Motion& desired_end_frame_velocity,
                               const pinocchio::Force& feed_forward_force, 
-                              const double& output_torque);
+                              const double& output_torque,
+                              Eigen::Ref<const Eigen::VectorXd> desired_joint_pos);
 
     /**
      * @brief Get the computed torques from the impedance controller.

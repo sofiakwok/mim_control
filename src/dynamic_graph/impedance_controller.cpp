@@ -34,6 +34,7 @@ ImpedanceController::ImpedanceController(const std::string& name)
       define_input_signal(desired_end_frame_velocity_sin_, "Vector6d_Motion"),
       define_input_signal(feed_forward_force_sin_, "Vector6d_Force"),
       define_input_signal(output_torque_sin_, "double"),
+      define_input_signal(desired_joint_pos_sin_, "VectorXd"),
       // Output signals.
       define_output_signal(torque_sout_,
                            "inner",
@@ -56,7 +57,8 @@ ImpedanceController::ImpedanceController(const std::string& name)
               << gain_derivative_sin_ << gain_feed_forward_force_sin_
               << desired_end_frame_placement_sin_
               << desired_end_frame_velocity_sin_ << feed_forward_force_sin_ 
-              << output_torque_sin_,
+              << output_torque_sin_
+              << desired_joint_pos_sin_,
           make_signal_string(
               false, CLASS_NAME, name, "bool", "one_iteration_sout"))
 {
@@ -66,6 +68,7 @@ ImpedanceController::ImpedanceController(const std::string& name)
         << gain_feed_forward_force_sin_ << desired_end_frame_placement_sin_
         << desired_end_frame_velocity_sin_ << feed_forward_force_sin_
         << output_torque_sin_
+        << desired_joint_pos_sin_
         << torque_sout_ << joint_torque_sout_ << impedance_force_);
 }
 
@@ -122,6 +125,8 @@ bool& ImpedanceController::one_iteration_callback(bool& signal_data, int time)
         feed_forward_force_sin_.access(time);
     const double& output_torque =
         output_torque_sin_.access(time);
+    const dynamicgraph::Vector& desired_joint_pos =
+        desired_joint_pos_sin_.access(time);
 
     QuatConstMap quat(desired_end_frame_placement.tail<4>().data());
     desired_end_frame_placement_.rotation() = quat.matrix();
@@ -139,7 +144,8 @@ bool& ImpedanceController::one_iteration_callback(bool& signal_data, int time)
                               desired_end_frame_placement_,
                               desired_end_frame_velocity_,
                               feed_forward_force_, 
-                              output_torque);
+                              output_torque, 
+                              desired_joint_pos);
     signal_data = true;
     return signal_data;
 }

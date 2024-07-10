@@ -174,13 +174,17 @@ void CentroidalImpedanceController::run(
 
         double gain = 0;
 
+        Vector6d desired_joint_pos;
+        desired_joint_pos << 0, 0.2, -0.4, 0, 0.2, -0.4;
+
         impedance_controllers_[i].run_precomputed_data(
             robot_configuration, 
             robot_velocity, 
             pinocchio_data_,
             frame_placement_error_gain_, frame_velocity_error_gain_,
             1.,
-            pos, vel, F, gain
+            pos, vel, F, gain, 
+            desired_joint_pos
         );
 
         joint_torques_ += impedance_controllers_[i].get_joint_torques();
