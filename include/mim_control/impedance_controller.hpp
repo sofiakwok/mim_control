@@ -214,8 +214,16 @@ private:  // attributes
     /** @brief Output torques. */
     Eigen::VectorXd joint_torques_;
 
+    // values for PD controller 
+    Vector6d X_;
+    Vector6d X_des_;
+    Vector6d V_;
+    Vector6d V_des_;
     double kp_;
     double kd_;
+    double pd_torque_scaling_;
+
+    Vector6d pd_torque_; 
 
     /** @brief Checks out if the Pinocchio rigid body model of the robot
      * contains a free-flyer. This is used to return the command i.e. the

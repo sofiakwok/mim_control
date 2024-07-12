@@ -90,6 +90,8 @@ void CentroidalForceQPController::run(
     Eigen::Ref<const Eigen::VectorXd> cnt_array)
 {
     //std::cout << "contact array: " << cnt_array << std::endl; 
+    // Eigen::VectorXd fixed_contact_array(2, 1);
+    // fixed_contact_array << 1, 1;
     // Copy the linear part for the centroidal wrench equality.
     ce_new_ = ce_;
 
@@ -106,6 +108,7 @@ void CentroidalForceQPController::run(
     for (int i = 0; i < nb_eff_; i++)
     {
         if (cnt_array(i) < 0.2)
+        //if (fixed_contact_array(i) < 0.2)
         {
             ce_new_.col(3 * i + 0).setZero();
             ce_new_.col(3 * i + 1).setZero();

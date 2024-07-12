@@ -67,6 +67,7 @@ void ImpedanceController::initialize(const pinocchio::Model& pinocchio_model,
     kp_ = pd_values(4);
     kd_ = pd_values(5);
     std::cout << "kp: " << kp_ << std::endl; 
+    std::cout << "kd: " << kd_ << std::endl;
 }
 
 void ImpedanceController::run(
@@ -184,21 +185,21 @@ void ImpedanceController::run_precomputed_data(
 
     //write PD controller to hold robot 
     const int nj = 6; //number of joints
-    Eigen::VectorXd X(nj, 1);
-    X = robot_configuration.tail<nj>();
-    Eigen::VectorXd X_des(nj, 1); 
-    X_des = desired_joint_pos;
+    X_ = robot_configuration.tail<nj>();
+    X_des_ = desired_joint_pos;
 
-    Eigen::VectorXd V(nj, 1);
-    V = robot_velocity.tail<nj>();
-    Eigen::VectorXd V_des(nj, 1); 
-    V_des << 0, 0, 0, 0, 0, 0;
+    V_ = robot_velocity.tail<nj>();
+    V_des_ << 0, 0, 0, 0, 0, 0;
 
-    Eigen::VectorXd pd_torque(nj, 1);
-    pd_torque = (1 - output_torque) * ((kp_ * (X_des - X) - kd_ * (V_des - V)));
+    pd_torque_scaling_ = (1 - output_torque);
+    if (output_torque > 0.3){
+        pd_torque_scaling_ = 0;
+    }
+
+    pd_torque_ = pd_torque_scaling_ * ((kp_ * (X_des_ - X_) - kd_ * (V_des_ - V_)));
 
     // setting joint torques to be a combination of PD and WBC control
-    torques_ = pd_torque + wbc_torque.tail<nj>();
+    torques_ = pd_torque_ + wbc_torque.tail<nj>();
 
     if (pinocchio_model_has_free_flyer_)
         joint_torques_ = torques_.tail(pinocchio_model_.nv - 6);
