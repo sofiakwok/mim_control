@@ -191,10 +191,7 @@ void ImpedanceController::run_precomputed_data(
     V_ = robot_velocity.tail<nj>();
     V_des_ << 0, 0, 0, 0, 0, 0;
 
-    pd_torque_scaling_ = (1 - output_torque);
-    // if (output_torque > 0.3){
-    //     pd_torque_scaling_ = 0;
-    // }
+    pd_torque_scaling_ = 0; // (1 - output_torque);
 
     pd_torque_ = pd_torque_scaling_ * ((kp_ * (X_des_ - X_) - kd_ * (V_des_ - V_)));
 
