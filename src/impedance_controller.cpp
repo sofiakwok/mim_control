@@ -184,7 +184,7 @@ void ImpedanceController::run_precomputed_data(
     wbc_torque = output_torque * (impedance_jacobian_.transpose() * impedance_force_);
 
     //write PD controller to hold robot 
-    const int nj = 6; //number of joints
+    /*const int nj = 6; //number of joints
     X_ = robot_configuration.tail<nj>();
     X_des_ = desired_joint_pos;
 
@@ -197,6 +197,8 @@ void ImpedanceController::run_precomputed_data(
 
     // setting joint torques to be a combination of PD and WBC control
     torques_ = pd_torque_ + wbc_torque.tail<nj>();
+    */
+   torques_ = wbc_torque;
 
     if (pinocchio_model_has_free_flyer_)
         joint_torques_ = torques_.tail(pinocchio_model_.nv - 6);
